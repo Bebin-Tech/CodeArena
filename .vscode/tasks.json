@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "CodeArena: backend", "type": "shell", "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-backend.ps1", "problemMatcher": [], "presentation": { "panel": "dedicated" } },
+    { "label": "CodeArena: frontend", "type": "shell", "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-frontend.ps1", "problemMatcher": [], "presentation": { "panel": "dedicated" } },
+    { "label": "CodeArena: run", "dependsOn": ["CodeArena: backend", "CodeArena: frontend"], "dependsOrder": "parallel", "problemMatcher": [] }
+  ]
+}
