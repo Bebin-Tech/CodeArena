@@ -1,4 +1,6 @@
 import hashlib
+import ipaddress
+import os
 import uuid
 from datetime import datetime, timedelta, timezone
 import jwt
@@ -36,8 +38,14 @@ def redis_client():
 
 
 def throttle(request: Request, bucket: str, limit=10):
-    # Do not trust forwarded IP headers from arbitrary clients.
+    # Vercel overwrites this header at ingress. Never trust it in local/direct deployments.
     host = request.client.host if request.client else 'unknown'
+    if os.environ.get('VERCEL') == '1':
+        forwarded = request.headers.get('x-vercel-forwarded-for', '').split(',')[0].strip()
+        try:
+            host = str(ipaddress.ip_address(forwarded))
+        except ValueError:
+            pass
     key = f'rate:{bucket}:{host}'
     try:
         count = redis_client().eval('local n=redis.call("INCR",KEYS[1]); if n==1 then redis.call("EXPIRE",KEYS[1],ARGV[1]) end; return n', 1, key, 600)

@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.pool import NullPool
 from app.core.config import get_settings
 
 
@@ -7,7 +8,8 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(get_settings().db_url, pool_pre_ping=True)
+settings = get_settings()
+engine = create_engine(settings.db_url, pool_pre_ping=True, connect_args={'connect_timeout': 10}, **({'poolclass': NullPool} if settings.environment == 'production' else {}))
 SessionLocal = sessionmaker(engine, expire_on_commit=False)
 
 

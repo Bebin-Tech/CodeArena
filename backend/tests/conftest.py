@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
@@ -13,12 +14,12 @@ from app.main import app
 @pytest.fixture(scope='session')
 def database_engine():
     # Dedicated random schema: no deletion or modification of application data.
-    engine = create_engine(get_settings().db_url)
+    engine = create_engine(get_settings().db_url, connect_args={'connect_timeout': 10})
     schema = 'codearena_test_' + uuid.uuid4().hex
     with engine.begin() as connection:
         connection.execute(text(f'CREATE SCHEMA {schema}'))
         connection.execute(text(f'SET search_path TO {schema}'))
-        config = Config('alembic.ini')
+        config = Config(str(Path(__file__).resolve().parents[1] / 'alembic.ini'))
         config.attributes['connection'] = connection
         command.upgrade(config, 'head')
     yield engine, schema

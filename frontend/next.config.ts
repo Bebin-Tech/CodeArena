@@ -13,6 +13,9 @@ const config: NextConfig = {
     ];
   },
   async rewrites() {
+    // Vercel Services routes /api/v1 directly to FastAPI on the same domain.
+    // The loopback rewrite is only for the two-process local setup.
+    if (process.env.VERCEL && !process.env.API_URL) return [];
     return [
       {
         source: "/api/v1/:path*",

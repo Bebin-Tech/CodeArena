@@ -64,7 +64,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   const [visible, setVisible] = useState(false);
   const providers = useQuery({
     queryKey: ["providers"],
-    queryFn: () => api<{ github: boolean }>("/auth/providers"),
+    queryFn: () => api<{ github: boolean; email?: boolean }>("/auth/providers"),
   });
   const schema: z.ZodType<
     Record<string, string>,
@@ -164,6 +164,11 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
     );
   }
   const oauthError = search.get("error");
+  const emailUnavailable =
+    providers.data?.email === false &&
+    (mode === "register" ||
+      mode === "forgot-password" ||
+      (mode === "verify-email" && !token));
   return (
     <div className="auth-layout">
       <aside className="auth-aside">
@@ -236,6 +241,13 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
           ) : (
             <>
               <form onSubmit={handleSubmit(submit)} noValidate>
+                {emailUnavailable && (
+                  <div className="alert alert-error" role="status">
+                    Account email delivery is not configured on this deployment
+                    yet. Registration and recovery will be available after email
+                    setup is complete.
+                  </div>
+                )}
                 {mode === "register" &&
                   field(
                     "full_name",
@@ -319,7 +331,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
                 <Button
                   className="full-width"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || emailUnavailable}
                 >
                   {isSubmitting ? (
                     <>

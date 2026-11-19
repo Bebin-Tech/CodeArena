@@ -4,6 +4,8 @@ Compete. Code. Prove Your Skills.
 
 Milestone 1 implements the account foundation: a Next.js App Router interface, FastAPI authentication, PostgreSQL migrations, Redis rate limits, local transactional email, profile onboarding and session management. See [architecture and milestones](docs/architecture.md), [design system](docs/design-system.md), and [verification results](docs/milestone-1.md).
 
+Vercel hosting configuration and production setup are documented in [the deployment guide](docs/deployment-vercel.md). Hosted accounts use a separate database; the local QA account does not automatically exist online.
+
 ## Run the application
 
 After the development environment below is initialized, run:

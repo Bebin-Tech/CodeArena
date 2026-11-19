@@ -5,6 +5,8 @@ from app.core.config import get_settings
 
 def send_action(email: str, token: str, purpose: str):
     settings = get_settings()
+    if settings.environment == 'production' and settings.smtp_host in ('127.0.0.1', 'localhost'):
+        raise OSError('Production email service is not configured.')
     path = 'verify-email' if purpose == 'verify' else 'reset-password'
     message = EmailMessage()
     message['From'] = settings.mail_from

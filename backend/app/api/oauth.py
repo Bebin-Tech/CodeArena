@@ -20,7 +20,12 @@ oauth.register('github', client_id=settings.github_client_id, client_secret=sett
 
 @router.get('/auth/providers')
 def providers():
-    return {'github': bool(settings.github_client_id and settings.github_client_secret)}
+    email_ready = settings.environment != 'production' or (
+        settings.smtp_host not in ('127.0.0.1', 'localhost')
+        and bool(settings.smtp_username and settings.smtp_password)
+        and '.local' not in settings.mail_from
+    )
+    return {'github': bool(settings.github_client_id and settings.github_client_secret), 'email': email_ready}
 
 
 @router.get('/auth/github')
