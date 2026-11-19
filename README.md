@@ -55,7 +55,7 @@ Backend tests migrate a random temporary PostgreSQL schema and roll back per tes
 
 GitHub OAuth is implemented but hidden as an action until `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` are configured. Register a GitHub OAuth application with callback `http://127.0.0.1:8000/api/v1/auth/github/callback`, set credentials in `.env`, and restart the backend. OAuth tests cover provider identity handling with a mocked provider and reject automatic linking to an existing email/password account. A real GitHub round trip requires your credentials and has not been verified.
 
-For real transactional delivery configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_STARTTLS=true` and `MAIL_FROM`. Production requires HTTPS, `ENVIRONMENT=production`, managed secrets, a trusted proxy configuration and an external SMTP service. Mailpit and the local containers are development infrastructure. Durable mail outbox/retries and operational deployment hardening are pending later milestones.
+For real transactional delivery configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_STARTTLS=true` and `MAIL_FROM`. You can use [Gmail with an App Password](docs/gmail-setup.md) without buying a domain. Production requires HTTPS, `ENVIRONMENT=production`, managed secrets, a trusted proxy configuration and an external SMTP service. Mailpit and the local containers are development infrastructure. Durable mail outbox/retries and operational deployment hardening are pending later milestones.
 
 ## Development environment
 

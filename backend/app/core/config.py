@@ -1,5 +1,6 @@
 from functools import lru_cache
 import os
+from email.utils import parseaddr
 from pathlib import Path
 from urllib.parse import quote_plus
 
@@ -29,7 +30,8 @@ class Settings(BaseSettings):
     smtp_host: str = '127.0.0.1'
     smtp_port: int = 1025
     smtp_username: str = ''
-    smtp_password: str = Field(default='', validation_alias=AliasChoices('SMTP_PASSWORD', 'RESEND_API_KEY'))
+    smtp_password: str = Field(default='', repr=False)
+    resend_api_key: str = Field(default='', repr=False)
     smtp_starttls: bool = False
     mail_from: str = 'CodeArena <accounts@codearena.local>'
     github_client_id: str = ''
@@ -55,6 +57,31 @@ class Settings(BaseSettings):
     @property
     def secure_cookies(self):
         return self.environment == 'production'
+
+    @property
+    def smtp_login_password(self):
+        if self.smtp_host.lower() == 'smtp.gmail.com':
+            # Google displays App Passwords in spaced groups for readability.
+            return ''.join(self.smtp_password.split())
+        if self.smtp_host.lower() == 'smtp.resend.com':
+            return self.smtp_password or self.resend_api_key
+        return self.smtp_password
+
+    @property
+    def email_ready(self):
+        host = self.smtp_host.lower()
+        sender = parseaddr(self.mail_from)[1]
+        if host == 'smtp.gmail.com':
+            return bool(self.smtp_port == 587 and self.smtp_starttls
+                        and self.smtp_username and self.smtp_login_password
+                        and '@' in sender
+                        and sender.lower() == self.smtp_username.lower())
+        if self.environment != 'production':
+            return True  # Local Mailpit does not require authentication or TLS.
+        return bool(host not in ('127.0.0.1', 'localhost')
+                    and self.smtp_starttls
+                    and self.smtp_username and self.smtp_login_password
+                    and '@' in sender and not sender.lower().endswith('.local'))
 
 
 @lru_cache

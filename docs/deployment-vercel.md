@@ -21,10 +21,12 @@ Functions and storage use Singapore (`sin1`). Node.js is set to 24. PostgreSQL u
 | `FRONTEND_URL`, `API_URL` | Optional explicit HTTPS domain overrides, e.g. after attaching a custom domain |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_STARTTLS`, `SMTP_USERNAME` | Transactional email connection |
 | `SMTP_PASSWORD` or `RESEND_API_KEY` | Email credential (server-only) |
-| `MAIL_FROM` | Sender on a domain owned and verified by the project owner |
+| `MAIL_FROM` | Authenticated Gmail address, or a sender on a domain verified with another email provider |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional GitHub OAuth credentials |
 
-For Resend SMTP use host `smtp.resend.com`, port `587`, STARTTLS enabled, username `resend`, and the API key as password. A verified sender domain is required before enabling public registration and recovery. Until then, the account pages report email as unavailable and disable actions that require delivery. Existing sessions and verification/recovery links remain checked by the backend; no verification bypass or public default account is introduced.
+Gmail works without buying a domain: use `smtp.gmail.com`, port `587`, STARTTLS, your Gmail address as username/From, and a Google App Password as `SMTP_PASSWORD`. Follow [Gmail setup](gmail-setup.md).
+
+For Resend SMTP use host `smtp.resend.com`, port `587`, STARTTLS enabled, username `resend`, and the API key as password. Resend requires a verified sender domain. Until email settings are complete, the account pages report email as unavailable and disable actions that require delivery. Existing sessions and verification/recovery links remain checked by the backend; no verification bypass or public default account is introduced.
 
 ## Migrations
 
@@ -41,7 +43,7 @@ The migration helper refuses missing or loopback database URLs and uses the expl
 
 - Run backend tests and the frontend tests/build before releasing changes. The deployment update passed **22 backend tests**, **3 frontend tests**, and the Vercel-mode production build locally.
 - Check `/api/v1/health` for database and Redis connectivity and `/api/v1/auth/providers` for configured identity providers and email readiness.
-- Registration and recovery require the owner-provided verified email domain; live GitHub OAuth requires provider credentials.
+- Registration and recovery require working SMTP credentials (Gmail App Password or another configured provider); live GitHub OAuth requires provider credentials.
 - Git pushes to `main` may trigger Vercel production deployments. Schema changes must remain compatible with the running version; apply reviewed migrations before shipping dependent code.
 - Preview deployments intentionally do not receive the production database, Redis, or signing secret. Provision separate preview resources before testing authenticated previews.
 - Roll back the complete application using Vercel's previous known-good production deployment. Database rollback is a separate reviewed operation; do not automatically downgrade migrations.

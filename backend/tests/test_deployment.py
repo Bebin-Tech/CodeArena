@@ -17,9 +17,9 @@ def test_marketplace_environment_aliases(monkeypatch):
     monkeypatch.setenv('RESEND_API_KEY', 'test-only-provider-key')
     monkeypatch.delenv('REDIS_URL', raising=False)
     monkeypatch.delenv('SMTP_PASSWORD', raising=False)
-    config = settings(postgres_password='local-only-test')
+    config = settings(postgres_password='local-only-test', smtp_host='smtp.resend.com')
     assert config.redis_url == 'rediss://redis.example:6379'
-    assert config.smtp_password == 'test-only-provider-key'
+    assert config.smtp_login_password == 'test-only-provider-key'
 
 
 def test_production_domain_defaults_and_secure_cookies(monkeypatch):
@@ -59,6 +59,7 @@ def test_production_reports_unconfigured_email(monkeypatch):
     monkeypatch.setattr(oauth, 'settings', config)
     assert oauth.providers()['email'] is False
     config.smtp_host = 'smtp.resend.com'
+    config.smtp_starttls = True
     config.smtp_username = 'resend'
     config.smtp_password = 'test-only-key'
     config.mail_from = 'CodeArena <accounts@example.com>'
